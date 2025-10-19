@@ -32,7 +32,10 @@ exports.login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-    await Token.create({token, userId: user.id, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)})
+
+    const expiryDate = new Date();
+    expiryDate.setUTCDate(expiryDate.getUTCDate() + 1);
+    await Token.create({token, userId: user.id, expiresAt: expiryDate})
 
     res.status(200).json({ message: "Login successful", token });
   } 
