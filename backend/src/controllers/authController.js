@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Token = require("../models/Token");
 
 exports.signup = async (req, res) => {
   try {
@@ -32,7 +33,46 @@ exports.login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
+    const expiryDate = new Date();
+    expiryDate.setUTCDate(expiryDate.getUTCDate() + 1);
+    await Token.create({token, userId: user.id, expiresAt: expiryDate})
+
     res.status(200).json({ message: "Login successful", token });
+  } 
+  catch (err) 
+  {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer "))
+      return res.status(401).json({ error: "No token provided" });
+
+    const token = authHeader.split(" ")[1];
+
+    await Token.destroy({ where: { token } });
+
+    res.status(200).json({ message: "Logout successful" });
+  } 
+  catch (err) 
+  {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    await Token.destroy({ where: { userId } });
+    await user.destroy();
+
+    res.status(200).json({ message: "User account deleted successfully" });
   } 
   catch (err) 
   {
