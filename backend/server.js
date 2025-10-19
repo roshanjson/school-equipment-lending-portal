@@ -14,6 +14,9 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const authRoutes = require("./src/routes/authRoutes");
 app.use("/api/auth", authRoutes);
 
+const equipmentRoutes = require("./src/routes/equipmentRoutes");
+app.use("/api/equipment", equipmentRoutes);
+
 const sequelize = require("./src/models/index");
 require("./src/models/Token");
 require("./src/models/User");
