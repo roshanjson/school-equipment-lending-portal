@@ -1,0 +1,23 @@
+const { DataTypes } = require("sequelize");
+const sequelize = require("./index");
+const User = require("./User");
+const Equipment = require("./Equipment");
+
+const BorrowRequest = sequelize.define("BorrowRequest", {
+  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+  status: {
+    type: DataTypes.ENUM("requested", "approved", "rejected", "returned"),
+    defaultValue: "requested",
+  },
+  requestDate: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+  returnDate: { type: DataTypes.DATE, allowNull: true },
+});
+
+// Relationships
+User.hasMany(BorrowRequest);
+BorrowRequest.belongsTo(User);
+
+Equipment.hasMany(BorrowRequest);
+BorrowRequest.belongsTo(Equipment);
+
+module.exports = BorrowRequest;
