@@ -15,6 +15,7 @@ const authRoutes = require("./src/routes/authRoutes");
 app.use("/api/auth", authRoutes);
 
 const sequelize = require("./src/models/index");
+require("./src/models/Token");
 require("./src/models/User");
 require("./src/models/Equipment");
 require("./src/models/BorrowRequest");

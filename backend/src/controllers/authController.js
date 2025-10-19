@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Token = require("../models/Token");
 
 exports.signup = async (req, res) => {
   try {
@@ -31,6 +32,7 @@ exports.login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+    await Token.create({token, userId: user.id, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)})
 
     res.status(200).json({ message: "Login successful", token });
   } 
