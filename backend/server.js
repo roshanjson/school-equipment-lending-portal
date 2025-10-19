@@ -10,3 +10,12 @@ app.get("/", (req, res) => res.send("Server running..."));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+const sequelize = require("./src/models/index");
+require("./src/models/User");
+require("./src/models/Equipment");
+require("./src/models/BorrowRequest");
+
+sequelize.sync({ alter: true }).then(() => {
+  console.log("All models synchronized with MySQL database");
+});
