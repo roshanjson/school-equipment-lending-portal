@@ -41,5 +41,6 @@ const validate = (req, res, next) => {
 router.post("/signup", signUpValidationRules, validate, authController.signup);
 router.post("/login", loginValidationRules, validate, authController.login);
 router.post("/logout", authMiddleware, authController.logout);
+router.post("/deleteAccount", authMiddleware, authController.deleteAccount);
 
 module.exports = router;
