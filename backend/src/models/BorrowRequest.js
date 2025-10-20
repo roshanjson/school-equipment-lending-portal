@@ -10,14 +10,14 @@ const BorrowRequest = sequelize.define("BorrowRequest", {
     defaultValue: "requested",
   },
   requestDate: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-  returnDate: { type: DataTypes.DATE, allowNull: true },
+  returnDate: { type: DataTypes.DATE, allowNull: true }
 });
 
 // Relationships
-User.hasMany(BorrowRequest);
-BorrowRequest.belongsTo(User);
+User.hasMany(BorrowRequest, { foreignKey: "userId" });
+BorrowRequest.belongsTo(User, { foreignKey: "userId" });
 
-Equipment.hasMany(BorrowRequest);
-BorrowRequest.belongsTo(Equipment);
+Equipment.hasMany(BorrowRequest, { foreignKey: "equipmentId" });
+BorrowRequest.belongsTo(Equipment, { foreignKey: "equipmentId" });
 
 module.exports = BorrowRequest;
