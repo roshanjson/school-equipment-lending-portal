@@ -6,6 +6,15 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["student", "staff", "admin"]}>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/unauthorized" element={<h2>Access Denied</h2>} />
       </Routes>
     </Router>
   );
