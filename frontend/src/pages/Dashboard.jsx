@@ -1,68 +1,56 @@
 import { useEffect, useState } from "react";
 import axios from "../api/axiosInstance";
-import { useNavigate } from "react-router-dom";
+import NavigationBar from "../components/NavigationBar";
 
 const Dashboard = () => {
   const [equipment, setEquipment] = useState([]);
-  const navigate = useNavigate();
 
-  // Fetch equipment from backend
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
-        const res = await axios.get("/equipment"); // GET /api/equipment
+        const res = await axios.get("/equipment");
         setEquipment(res.data);
-      } catch (err) {
+      } 
+      catch (err) 
+      {
         console.error("Error fetching equipment:", err);
       }
     };
     fetchEquipment();
   }, []);
 
-  // Logout function
-  const handleLogout = () => {
-    localStorage.removeItem("user"); // Clear user info
-    localStorage.removeItem("token"); // Clear token if stored
-    navigate("/login"); // Redirect to login
-  };
-
   return (
-    <div className="container mt-4">
-      {/* Header with Logout button */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h2>Equipment Dashboard</h2>
-        <button
-          onClick={handleLogout}
-          style={{
-            backgroundColor: "#e63946",
-            color: "white",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-        >
-          Logout
-        </button>
-      </div>
+    <div>
+      <NavigationBar />
 
-      {/* Equipment list */}
-      <div className="row">
-        {equipment.length === 0 ? (
-          <p>No equipment available.</p>
-        ) : (
-          equipment.map((item) => (
-            <div key={item.id} className="col-md-4 mb-3">
-              <div className="card p-3">
-                <h5>{item.name}</h5>
-                <p>Category: {item.category}</p>
-                <p>Condition: {item.condition}</p>
-                <p>Quantity: {item.quantity}</p>
-                <p>Available: {item.availability ? "Yes" : "No"}</p>
+      <div className="container-fluid mt-4" style={{ alignItems: "left", gap: "1rem" }}>
+        <h2 style={{ fontSize: "1.5rem" }}>Equipment Dashboard</h2>
+
+        <div className="row mt-3">
+          {equipment.length === 0 ? (
+            <p>No equipment available.</p>
+          ) : (
+            equipment.map((item) => (
+              <div style={{
+                    padding: "0px 0px 0px 10px"
+                  }} key={item.id} className="col-md-2 mb-3">
+                <div
+                  className="card p-1"
+                  style={{
+                    background: "#eed09fff",
+                    borderRadius: "8px"
+                  }}
+                >
+                  <h5 style={{ fontSize: "1rem", padding: "10px 0px 0px 10px" }}>{item.name}</h5>
+                  <p style={{ fontSize: "0.9rem", padding: "0px 0px 0px 10px", margin: "0 0 0 0" }}>Category: {item.category}</p>
+                  <p style={{ fontSize: "0.9rem", padding: "0px 0px 0px 10px", margin: "0 0 0 0" }}>Condition: {item.condition}</p>
+                  <p style={{ fontSize: "0.9rem", padding: "0px 0px 0px 10px", margin: "0 0 0 0" }}>Quantity: {item.quantity}</p>
+                  <p style={{ fontSize: "0.9rem", padding: "0px 0px 10px 10px", margin: "0 0 0 0" }}>Available: {item.availability ? "Yes" : "No"}</p>
+                </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
