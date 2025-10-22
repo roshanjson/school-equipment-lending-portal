@@ -17,7 +17,6 @@ const fetchEquipment = async () => {
     const res = await axios.get("/equipment");
     setEquipment(res.data);
 
-    // Only set default selections the first time (or when new equipment appears)
     setSelectedItems((prev) => {
       const newSelections = { ...prev };
       let changed = false;
@@ -36,8 +35,11 @@ const fetchEquipment = async () => {
     });
 
     setIsInitialLoad(false);
-  } catch (err) {
-    console.error("Error fetching equipment:", err);
+  } 
+  catch (err) 
+  {
+    const errorMessage = err.response?.data?.error || "Error fetching equipment. Try again.";
+    alert(errorMessage);
   }
 };
 
@@ -114,9 +116,11 @@ const getDefaultDates = () => {
 
       alert("Borrow request(s) submitted successfully!");
       fetchEquipment();
-    } catch (err) {
-      console.error("Error submitting borrow requests:", err);
-      alert("Failed to submit borrow requests. Try again.");
+    } 
+    catch (err) 
+    {
+      const errorMessage = err.response?.data?.error || "Failed to submit borrow requests. Try again.";
+      alert(errorMessage);
     }
   };
 

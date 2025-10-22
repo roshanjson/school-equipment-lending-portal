@@ -16,7 +16,9 @@ const Login = () => {
       const userPayload = JSON.parse(atob(token.split(".")[1]));
       login({ id: userPayload.id, role: userPayload.role }, token);
       navigate("/dashboard");
-    } catch (err) {
+    } 
+    catch (err) 
+    {
       alert(err.response?.data?.error || "Login failed");
     }
   };

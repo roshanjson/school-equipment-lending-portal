@@ -25,7 +25,9 @@ const Signup = () => {
       await axios.post("/auth/signup", formData);
       alert("Signup successful! Please login.");
       navigate("/login");
-    } catch (err) {
+    } 
+    catch (err) 
+    {
       console.error(err);
       alert(err.response?.data?.message || "Signup failed. Try again.");
     }
