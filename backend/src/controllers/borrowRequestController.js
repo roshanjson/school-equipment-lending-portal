@@ -1,6 +1,7 @@
 const BorrowRequest = require("../models/BorrowRequest");
 const Equipment = require("../models/Equipment");
 const User = require("../models/User");
+const { Op, fn, col, where: sequelizeWhere, literal } = require("sequelize");
 
 exports.search = async (req, res) => {
   try {
@@ -32,14 +33,30 @@ exports.add = async (req, res) => {
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) return res.status(404).json({ error: "Equipment not found" });
 
-    if (quantity > equipment.quantity) {
+    const borrowRequests = await BorrowRequest.findAll({ 
+        where: {
+            equipmentId: equipmentId,
+            [Op.and]: [
+                sequelizeWhere(fn('DATE', col('borrowDate')), { [Op.lte]: returnDate }),
+                sequelizeWhere(fn('DATE', col('returnDate')), { [Op.gte]: borrowDate }),
+    ]
+        }
+    });
+
+    if (borrowRequests.length !== 0) return res.status(404).json({ error: `Equipment: ${equipment.name} is not available for the dates ${borrowDate} to ${returnDate}` });
+
+    const totalBorrowedQuantity = borrowRequests.reduce((sum, req) => sum + req.quantity, 0);
+    console.log(`borrowRequests: ${borrowRequests.length}`)
+    console.log(`Total Borrowed Quantity: ${totalBorrowedQuantity}`)
+    if (quantity > equipment.quantity - totalBorrowedQuantity)
+    {
       return res
         .status(400)
-        .json({ error: `Requested units of equipment is not available` });
+        .json({ error: `Requested number of units of equipment is not available` });
     }
 
-    const remainingQuantity = equipment.quantity - quantity;
-    await equipment.update({ quantity: remainingQuantity });
+    //const remainingQuantity = equipment.quantity - quantity;
+    //await equipment.update({ quantity: remainingQuantity });
 
     const request = await BorrowRequest.create({
       userId,
