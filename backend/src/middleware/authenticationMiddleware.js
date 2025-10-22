@@ -9,13 +9,12 @@ module.exports = async (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    // Verify token signature
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const storedToken = await Token.findOne({ where: { token } });
     if (!storedToken) return res.status(401).json({ error: "Token invalid or expired" });
 
-    req.user = decoded; // store user info for next handler
+    req.user = decoded;
     next();
   } 
   catch (err) 

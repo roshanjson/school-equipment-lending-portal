@@ -43,20 +43,13 @@ exports.add = async (req, res) => {
         }
     });
 
-    if (borrowRequests.length !== 0) return res.status(404).json({ error: `Equipment: ${equipment.name} is not available for the dates ${borrowDate} to ${returnDate}` });
-
     const totalBorrowedQuantity = borrowRequests.reduce((sum, req) => sum + req.quantity, 0);
-    console.log(`borrowRequests: ${borrowRequests.length}`)
-    console.log(`Total Borrowed Quantity: ${totalBorrowedQuantity}`)
     if (quantity > equipment.quantity - totalBorrowedQuantity)
     {
       return res
         .status(400)
-        .json({ error: `Requested number of units of equipment is not available` });
+        .json({ error: `Equipment: ${equipment.name} is not available for the dates ${borrowDate} to ${returnDate}` });
     }
-
-    //const remainingQuantity = equipment.quantity - quantity;
-    //await equipment.update({ quantity: remainingQuantity });
 
     const request = await BorrowRequest.create({
       userId,
@@ -77,7 +70,7 @@ exports.add = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const { userId, equipmentId, id, status, returnDate } = req.body;
+    const { userId, equipmentId, id, borrowDate, returnDate } = req.body;
 
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -88,7 +81,29 @@ exports.update = async (req, res) => {
     const request = await BorrowRequest.findByPk(id);
     if (!request) return res.status(404).json({ error: "Borrow request not found" });
 
-    await request.update({ status, returnDate});
+    await request.update({ borrowDate, returnDate });
+    res.json({ message: "Borrow request updated", request });
+  } 
+  catch (err) 
+  {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.process = async (req, res) => {
+  try {
+    const { userId, equipmentId, id, status } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const equipment = await Equipment.findByPk(equipmentId);
+    if (!equipment) return res.status(404).json({ error: "Equipment not found" });
+
+    const request = await BorrowRequest.findByPk(id);
+    if (!request) return res.status(404).json({ error: "Borrow request not found" });
+
+    await request.update({ status });
     res.json({ message: "Borrow request updated", request });
   } 
   catch (err) 
