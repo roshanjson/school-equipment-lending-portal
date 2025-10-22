@@ -10,7 +10,7 @@ const BorrowRequest = sequelize.define("BorrowRequest", {
     type: DataTypes.ENUM("requested", "approved", "rejected", "returned"),
     defaultValue: "requested",
   },
-  requestDate: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+  borrowDate: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   returnDate: { type: DataTypes.DATE, allowNull: true }
 });
 

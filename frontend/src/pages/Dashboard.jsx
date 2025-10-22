@@ -4,38 +4,93 @@ import NavigationBar from "../components/NavigationBar";
 import { FiRefreshCcw } from "react-icons/fi";
 
 const Dashboard = () => {
-  const [equipment, setEquipment] = useState([]);
-  const [selectedItems, setSelectedItems] = useState({}); // { equipmentId: quantity }
+const [equipment, setEquipment] = useState([]);
+const [selectedItems, setSelectedItems] = useState({});
+const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  useEffect(() => {fetchEquipment();}, []);
+useEffect(() => {
+  fetchEquipment();
+}, []);
 
-  const fetchEquipment = async () => {
-      try {
-        const res = await axios.get("/equipment");
-        setEquipment(res.data);
-      } catch (err) {
-        console.error("Error fetching equipment:", err);
-      }
-    };
+const fetchEquipment = async () => {
+  try {
+    const res = await axios.get("/equipment");
+    setEquipment(res.data);
+
+    // Only set default selections the first time (or when new equipment appears)
+    setSelectedItems((prev) => {
+      const newSelections = { ...prev };
+      let changed = false;
+
+      res.data.forEach((item) => {
+        if (!newSelections[item.id]) {
+          newSelections[item.id] = {
+            quantity: 0,
+            ...getDefaultDates(),
+          };
+          changed = true;
+        }
+      });
+
+      return changed || isInitialLoad ? newSelections : prev;
+    });
+
+    setIsInitialLoad(false);
+  } catch (err) {
+    console.error("Error fetching equipment:", err);
+  }
+};
+
+
+const getDefaultDates = () => {
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+
+  const formatDate = (date) => date.toISOString().split("T")[0];
+  return {
+    borrowDate: formatDate(today),
+    returnDate: formatDate(tomorrow),
+  };
+};
 
   const handleIncrement = (id, max) => {
-    setSelectedItems((prev) => ({
+    setSelectedItems((prev) => {
+    const current = prev[id] || {};
+    const currentQty = current.quantity || 0;
+    return {
       ...prev,
-      [id]: Math.min((prev[id] || 0) + 1, max),
-    }));
-  };
+      [id]: {
+        ...current,
+        quantity: Math.min(currentQty + 1, max),
+      },
+    };
+  });
+};
 
   const handleDecrement = (id) => {
-    setSelectedItems((prev) => ({
+  setSelectedItems((prev) => {
+    const current = prev[id] || {};
+    const currentQty = current.quantity || 0;
+    return {
       ...prev,
-      [id]: Math.max((prev[id] || 0) - 1, 0),
-    }));
-  };
+      [id]: {
+        ...current,
+        quantity: Math.max(currentQty - 1, 0),
+      },
+    };
+  });
+};
 
   const handleBorrow = async () => {
-    const itemsToBorrow = Object.entries(selectedItems)
-      .filter(([_, qty]) => qty > 0)
-      .map(([id, qty]) => ({ equipmentId: id, quantity: qty }));
+  const itemsToBorrow = Object.entries(selectedItems)
+    .filter(([_, item]) => item.quantity > 0)
+    .map(([id, item]) => ({
+      equipmentId: id,
+      quantity: item.quantity,
+      borrowDate: item.borrowDate,
+      returnDate: item.returnDate,
+    }));
 
     if (itemsToBorrow.length === 0) {
       alert("Please select at least one item to borrow.");
@@ -47,19 +102,17 @@ const Dashboard = () => {
       const borrowerId = user?.id;
 
       for (const item of itemsToBorrow) {
-        const date = new Date();
-        await axios.post("/borrow-request/", {
-          equipmentId: item.equipmentId,
-          userId: borrowerId,
-          quantity: item.quantity,
-          borrowDate: date.getDate(),
-          returnDate: (new Date()).setDate(date.getDate() + 1),
-          status: "requested",
-        });
-      }
+      await axios.post("/borrow-request/", {
+        equipmentId: item.equipmentId,
+        userId: borrowerId,
+        quantity: item.quantity,
+        borrowDate: new Date(item.borrowDate).toISOString().split("T")[0],
+        returnDate: new Date(item.returnDate).toISOString().split("T")[0],
+        status: "requested",
+      });
+    }
 
       alert("Borrow request(s) submitted successfully!");
-      setSelectedItems({});
       fetchEquipment();
     } catch (err) {
       console.error("Error submitting borrow requests:", err);
@@ -84,7 +137,7 @@ const Dashboard = () => {
             <FiRefreshCcw 
                 size={24}
                 style={{ cursor: "pointer", color: "#315e26ff" }}
-                onClick={fetchEquipment} // call your fetch function
+                onClick={fetchEquipment}
                 title="Refresh"
             />
           </div>
@@ -115,7 +168,7 @@ const Dashboard = () => {
               return (
                 <div
                   key={item.id}
-                  className="col-md-2 mb-3"
+                  className="col-md-3 mb-3"
                   style={{ padding: "0px 0px 0px 10px" }}
                 >
                   <div
@@ -126,15 +179,15 @@ const Dashboard = () => {
                       transition: "0.2s ease-in-out",
                     }}
                   >
-                    <h5
+                    <h4
                       style={{
-                        fontSize: "1rem",
+                        fontSize: "1.1rem",
                         color: "white",
-                        padding: "10px 0px 0px 10px",
+                        padding: "10px 0px 0px 10px"
                       }}
                     >
                       {item.name}
-                    </h5>
+                    </h4>
                     <p
                       style={{
                         fontSize: "0.9rem",
@@ -176,6 +229,54 @@ const Dashboard = () => {
                       Available: {item.availability ? "Yes" : "No"}
                     </p>
 
+                    <label style={{
+                        color: "white",
+                        padding: "0px 0px 10px 10px",
+                        margin: 0,
+                        borderRadius: "8px",
+                        width: "400px",
+                        fontSize: "0.9rem"
+                        }}>
+                        Borrow Date
+                        <input
+                          type="date"
+                          value={selectedItems[item.id]?.borrowDate || ""}
+                          onChange={(e) =>
+                            setSelectedItems((prev) => ({
+                              ...prev,
+                              [item.id]: {
+                                ...prev[item.id],
+                                borrowDate: e.target.value,
+                              },
+                            }))
+                          }
+                          style={{ width: "40%", marginLeft: "10px" }}
+                        />
+                      </label>
+                      
+                      <label style={{ color: "white",
+                                    padding: "0px 0px 10px 10px",
+                                    margin: 0,
+                                    borderRadius: "8px",
+                                    width: "400px",
+                                    fontSize: "0.9rem" }}>
+                        Return Date:
+                        <input
+                          type="date"
+                          value={selectedItems[item.id]?.returnDate || ""}
+                          onChange={(e) =>
+                            setSelectedItems((prev) => ({
+                              ...prev,
+                              [item.id]: {
+                                ...prev[item.id],
+                                returnDate: e.target.value,
+                              },
+                            }))
+                          }
+                          style={{ width: "40%", marginLeft: "10px" }}
+                        />
+                      </label>
+
                     <div
                       style={{
                         display: "flex",
@@ -185,6 +286,7 @@ const Dashboard = () => {
                         paddingBottom: "5px",
                       }}
                     >
+
                       <button
                         onClick={() => handleDecrement(item.id)}
                         style={{
@@ -199,7 +301,7 @@ const Dashboard = () => {
                         -
                       </button>
                       <span style={{ color: "white", fontWeight: "bold" }}>
-                        {quantity}
+                        {selectedItems[item.id]?.quantity || 0}
                       </span>
                       <button
                         onClick={() => handleIncrement(item.id, item.quantity)}
