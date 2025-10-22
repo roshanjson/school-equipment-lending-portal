@@ -1,7 +1,7 @@
 const express = require("express");
 const { body, validationResult } = require("express-validator");
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
+const authenticationMiddleware = require("../middleware/authenticationMiddleware");
 const equipmentSearchParamsValidator = require("../middleware/equipmentSearchParamsValidator");
 const equipmentValidator = require("../middleware/equipmentValidator");
 const equipmentController = require("../controllers/equipmentController");
@@ -16,9 +16,9 @@ const validate = (req, res, next) => {
   next();
 };
 
-router.get("/", authMiddleware, equipmentSearchParamsValidator, validate, equipmentController.search);
-router.post("/", authMiddleware, equipmentValidator, validate, equipmentController.add);
-router.patch("/", authMiddleware, equipmentValidator, validate, equipmentController.update);
-router.delete("/", authMiddleware, equipmentController.delete);
+router.get("/", authenticationMiddleware, equipmentSearchParamsValidator, validate, equipmentController.search);
+router.post("/", authenticationMiddleware, equipmentValidator, validate, equipmentController.add);
+router.patch("/", authenticationMiddleware, equipmentValidator, validate, equipmentController.update);
+router.delete("/", authenticationMiddleware, equipmentController.delete);
 
 module.exports = router;

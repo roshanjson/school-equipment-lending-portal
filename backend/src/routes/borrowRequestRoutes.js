@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const borrowRequestController = require("../controllers/borrowRequestController");
-const authMiddleware = require("../middleware/authMiddleware");
+const authenticationMiddleware = require("../middleware/authenticationMiddleware");
 const { addBorrowRequestValidator, updateBorrowRequestValidator } = require("../middleware/borrowRequestValidator");
 
 const validate = (req, res, next) => {
@@ -14,9 +14,9 @@ const validate = (req, res, next) => {
   next();
 };
 
-router.get("/", authMiddleware, borrowRequestController.search);
-router.post("/", authMiddleware, borrowRequestController.add);
-router.patch("/", authMiddleware, borrowRequestController.update);
-router.delete("/:id", authMiddleware, borrowRequestController.delete);
+router.get("/", authenticationMiddleware, borrowRequestController.search);
+router.post("/", authenticationMiddleware, borrowRequestController.add);
+router.patch("/", authenticationMiddleware, borrowRequestController.update);
+router.delete("/:id", authenticationMiddleware, borrowRequestController.delete);
 
 module.exports = router;
