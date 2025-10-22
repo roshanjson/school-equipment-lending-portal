@@ -1,4 +1,5 @@
 const Equipment = require("../models/Equipment");
+const { Op } = require("sequelize");
 
 exports.search = async (req, res) => {
   try {
@@ -10,7 +11,7 @@ exports.search = async (req, res) => {
     if (condition) where.condition = condition;
     if (availability !== undefined) where.availability = availability === 'true';
 
-    const equipments = await Equipment.findAll({ where });
+    const equipments = await Equipment.findAll({ where: { quantity: { [Op.gt]: 0 }} });
     res.json(equipments);
   } 
   catch (err) 

@@ -9,18 +9,17 @@ exports.addBorrowRequestValidator = [
     .notEmpty().withMessage("equipmentId is required")
     .isInt({ gt: 0 }).withMessage("equipmentId must be a positive integer"),
 
+  body("quantity")
+    .notEmpty().withMessage("quantity is required")
+    .isInt({ gt: 0 }).withMessage("equipmentId must be a positive integer"),
+
   body("borrowDate")
     .notEmpty().withMessage("borrowDate is required")
     .isISO8601().withMessage("borrowDate must be a valid date"),
 
   body("returnDate")
     .optional({ nullable: true })
-    .isISO8601().withMessage("returnDate must be a valid date"),
-
-  body("remarks")
-    .optional({ checkFalsy: true })
-    .isString().withMessage("remarks must be a string")
-    .isLength({ max: 255 }).withMessage("remarks can be up to 255 characters only"),
+    .isISO8601().withMessage("returnDate must be a valid date")
 ];
 
 exports.updateBorrowRequestValidator = [
@@ -31,10 +30,5 @@ exports.updateBorrowRequestValidator = [
 
   body("returnDate")
     .optional({ nullable: true })
-    .isISO8601().withMessage("returnDate must be a valid date"),
-
-  body("remarks")
-    .optional({ checkFalsy: true })
-    .isString().withMessage("remarks must be a string")
-    .isLength({ max: 255 }).withMessage("remarks can be up to 255 characters only"),
+    .isISO8601().withMessage("returnDate must be a valid date")
 ];

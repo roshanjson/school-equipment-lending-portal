@@ -22,20 +22,31 @@ exports.search = async (req, res) => {
 
 exports.add = async (req, res) => {
   try {
-    const { userId, equipmentId, borrowDate, returnDate, remarks } = req.body;
+    console.log(req.body)
+    const { equipmentId, quantity, borrowDate, returnDate } = req.body;
 
+    const userId = req.user.id;
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ error: "User not found" });
 
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment) return res.status(404).json({ error: "Equipment not found" });
 
+    if (quantity > equipment.quantity) {
+      return res
+        .status(400)
+        .json({ error: `Requested units of equipment is not available` });
+    }
+
+    const remainingQuantity = equipment.quantity - quantity;
+    await equipment.update({ quantity: remainingQuantity });
+
     const request = await BorrowRequest.create({
       userId,
       equipmentId,
+      quantity,
       borrowDate,
       returnDate,
-      remarks,
       status: "requested",
     });
 
@@ -49,7 +60,7 @@ exports.add = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const { userId, equipmentId, id, status, returnDate, remarks } = req.body;
+    const { userId, equipmentId, id, status, returnDate } = req.body;
 
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -60,7 +71,7 @@ exports.update = async (req, res) => {
     const request = await BorrowRequest.findByPk(id);
     if (!request) return res.status(404).json({ error: "Borrow request not found" });
 
-    await request.update({ status, returnDate, remarks });
+    await request.update({ status, returnDate});
     res.json({ message: "Borrow request updated", request });
   } 
   catch (err) 

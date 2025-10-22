@@ -22,8 +22,24 @@ const Login = () => {
   };
 
   return (
-    <div className="container mt-10" style={{ maxWidth: "400px" }}>
-      <h3>Login</h3>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        backgroundColor: "#f1f1f1",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "white",
+          padding: "30px",
+          borderRadius: "8px",
+          width: "400px",
+        }}
+      >
+      <h3 style={{ textAlign: "center", marginBottom: "20px" }}>Login</h3>
       <form onSubmit={handleSubmit}>
         <div className="row mb-3">
             <input type="email" placeholder="Email" className="form-control my-2" onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -32,9 +48,37 @@ const Login = () => {
             <input type="password" placeholder="Password" className="form-control my-2" onChange={(e) => setForm({ ...form, password: e.target.value })} />
         </div>
         <div className="row mb-3">
-            <button className="btn btn-primary w-100">Login</button>
+            <button type="submit" style={{
+              width: "100%",
+              backgroundColor: "#1d3557",
+              color: "white",
+              padding: "10px",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}>Login</button>
         </div>
       </form>
+        <div style={{ textAlign: "center", marginTop: "15px" }}>
+          <p style={{ fontSize: "0.9rem" }}>
+            Do not have an account?{" "}
+            <button
+              onClick={() => navigate("/signup")}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#1d3557",
+                textDecoration: "underline",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              Sign Up
+            </button>
+          </p>
+        </div>
+    </div>
     </div>
   );
 };
