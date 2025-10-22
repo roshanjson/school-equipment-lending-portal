@@ -24,20 +24,6 @@ const NavigationBar = () => {
 
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         <button
-          onClick={() => navigate("/dashboard")}
-          style={{
-            backgroundColor: "#ffffffff",
-            color: "#1d3557",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "1rem"
-          }}
-        >
-          Dashboard
-        </button>
-        <button
           onClick={handleLogout}
           style={{
             backgroundColor: "maroon",
@@ -46,7 +32,8 @@ const NavigationBar = () => {
             padding: "8px 16px",
             borderRadius: "6px",
             cursor: "pointer",
-            fontSize: "1rem"
+            fontSize: "1rem",
+            fontWeight: "bold",
           }}
         >
           Logout
