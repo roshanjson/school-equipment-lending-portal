@@ -37,15 +37,15 @@ const Dashboard = () => {
                 <div
                   className="card p-1"
                   style={{
-                    background: "#eed09fff",
+                    background: "#1d3557",
                     borderRadius: "8px"
                   }}
                 >
-                  <h5 style={{ fontSize: "1rem", padding: "10px 0px 0px 10px" }}>{item.name}</h5>
-                  <p style={{ fontSize: "0.9rem", padding: "0px 0px 0px 10px", margin: "0 0 0 0" }}>Category: {item.category}</p>
-                  <p style={{ fontSize: "0.9rem", padding: "0px 0px 0px 10px", margin: "0 0 0 0" }}>Condition: {item.condition}</p>
-                  <p style={{ fontSize: "0.9rem", padding: "0px 0px 0px 10px", margin: "0 0 0 0" }}>Quantity: {item.quantity}</p>
-                  <p style={{ fontSize: "0.9rem", padding: "0px 0px 10px 10px", margin: "0 0 0 0" }}>Available: {item.availability ? "Yes" : "No"}</p>
+                  <h5 style={{ fontSize: "1rem", color: "white", padding: "10px 0px 0px 10px" }}>{item.name}</h5>
+                  <p style={{ fontSize: "0.9rem", color: "white", padding: "0px 0px 0px 10px", margin: "0 0 0 0" }}>Category: {item.category}</p>
+                  <p style={{ fontSize: "0.9rem", color: "white", padding: "0px 0px 0px 10px", margin: "0 0 0 0" }}>Condition: {item.condition}</p>
+                  <p style={{ fontSize: "0.9rem", color: "white", padding: "0px 0px 0px 10px", margin: "0 0 0 0" }}>Quantity: {item.quantity}</p>
+                  <p style={{ fontSize: "0.9rem", color: "white", padding: "0px 0px 10px 10px", margin: "0 0 0 0" }}>Available: {item.availability ? "Yes" : "No"}</p>
                 </div>
               </div>
             ))

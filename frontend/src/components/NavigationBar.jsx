@@ -12,7 +12,7 @@ const NavigationBar = () => {
   return (
     <nav
       style={{
-        backgroundColor: "#e2af5dff",
+        backgroundColor: "#1d3557",
         color: "black",
         padding: "10px 20px",
         display: "flex",
@@ -20,14 +20,14 @@ const NavigationBar = () => {
         alignItems: "center",
       }}
     >
-      <h2 style={{ margin: 0, fontSize: "1.8rem" }}>School Equipment Lending Portal</h2>
+      <h2 style={{ margin: 0, fontSize: "1.8rem", color: "white" }}>School Equipment Lending Portal</h2>
 
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         <button
           onClick={() => navigate("/dashboard")}
           style={{
-            backgroundColor: "#eed09fff",
-            color: "black",
+            backgroundColor: "#ffffffff",
+            color: "#1d3557",
             border: "none",
             padding: "8px 16px",
             borderRadius: "6px",
