@@ -115,6 +115,13 @@ const getDefaultDates = () => {
     }
 
       alert("Borrow request(s) submitted successfully!");
+      setSelectedItems(prev => {
+      const reset = {};
+      Object.keys(prev).forEach(id => {
+        reset[id] = { ...prev[id], quantity: 0 };
+      });
+      return reset;
+      });
       fetchEquipment();
     } 
     catch (err) 
