@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/authContext";
 
 const NavigationBar = () => {
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -37,20 +40,22 @@ const NavigationBar = () => {
         >
           Dashboard
         </button>
-        <button
-          onClick={() => navigate("/equipment-management")}
-          style={{
-            background: "#457b9d",
-            color: "white",
-            padding: "8px 16px",
-            border: "none",
-            borderRadius: "6px",
-            fontWeight: "bold",
-            cursor: "pointer"
-          }}
-        >
-          Manage Equipments
-        </button>
+        {user?.role === "admin" && (
+          <button
+            onClick={() => navigate("/equipment-management")}
+            style={{
+              background: "#457b9d",
+              color: "white",
+              padding: "8px 16px",
+              border: "none",
+              borderRadius: "6px",
+              fontWeight: "bold",
+              cursor: "pointer"
+            }}
+          >
+            Manage Equipments
+          </button>
+        )}
         <button
           onClick={handleLogout}
           style={{
