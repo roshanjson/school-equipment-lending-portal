@@ -20,6 +20,6 @@ const validate = (req, res, next) => {
 router.get("/", authenticationMiddleware, equipmentSearchParamsValidator, validate, equipmentController.search);
 router.post("/", authenticationMiddleware, authorizationMiddleware(["admin"]), equipmentValidator, validate, equipmentController.add);
 router.patch("/", authenticationMiddleware, authorizationMiddleware(["admin"]), equipmentValidator, validate, equipmentController.update);
-router.delete("/", authenticationMiddleware, authorizationMiddleware(["admin"]), equipmentController.delete);
+router.delete("/:id", authenticationMiddleware, authorizationMiddleware(["admin"]), equipmentController.delete);
 
 module.exports = router;

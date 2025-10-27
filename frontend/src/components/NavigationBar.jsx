@@ -24,16 +24,44 @@ const NavigationBar = () => {
 
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         <button
+          onClick={() => navigate("/dashboard")}
+          style={{
+            background: "#457b9d",
+            color: "white",
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: "6px",
+            fontWeight: "bold",
+            cursor: "pointer"
+          }}
+        >
+          Dashboard
+        </button>
+        <button
+          onClick={() => navigate("/equipment-management")}
+          style={{
+            background: "#457b9d",
+            color: "white",
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: "6px",
+            fontWeight: "bold",
+            cursor: "pointer"
+          }}
+        >
+          Manage Equipments
+        </button>
+        <button
           onClick={handleLogout}
           style={{
-            backgroundColor: "maroon",
+            backgroundColor: "#8a1e27ff",
             color: "white",
             border: "none",
             padding: "8px 16px",
             borderRadius: "6px",
             cursor: "pointer",
             fontSize: "1rem",
-            fontWeight: "bold",
+            fontWeight: "bold"
           }}
         >
           Logout
