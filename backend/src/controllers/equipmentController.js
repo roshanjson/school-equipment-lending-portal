@@ -34,11 +34,11 @@ exports.add = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const { id } = req.query;
+    const { id, condition, quantity, availability } = req.body;
+    console.log(id);
     const equipment = await Equipment.findByPk(id);
     if (!equipment) return res.status(404).json({ error: "Equipment not found" });
 
-    const { condition, quantity, availability } = req.body;
     await equipment.update({ condition, quantity, availability });
     res.json({ message: "Equipment updated", equipment });
   } 
@@ -50,8 +50,9 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.params;
     const equipment = await Equipment.findByPk(id);
+    console.log(`Id:${id}`);
     if (!equipment) return res.status(404).json({ error: "Equipment not found" });
 
     await equipment.destroy();
