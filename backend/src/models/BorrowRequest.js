@@ -7,7 +7,7 @@ const BorrowRequest = sequelize.define("BorrowRequest", {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   quantity: { type: DataTypes.INTEGER },
   status: {
-    type: DataTypes.ENUM("requested", "approved", "rejected", "returned"),
+    type: DataTypes.ENUM("requested", "pending", "approved", "rejected", "returned"),
     defaultValue: "requested",
   },
   borrowDate: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
