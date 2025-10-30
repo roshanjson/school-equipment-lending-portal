@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import EquipmentManagement from "./pages/EquipmentManagement";
+import BorrowRequestManagement from "./pages/BorrowRequestManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["student", "staff", "admin"]}><Dashboard /></ProtectedRoute>}/>
         <Route path="/equipment-management" element={<ProtectedRoute allowedRoles={["admin"]}><EquipmentManagement /></ProtectedRoute>}/>
+        <Route path="/borrow-request-management" element={<ProtectedRoute allowedRoles={["admin"]}><BorrowRequestManagement /></ProtectedRoute>}/>
         <Route path="/unauthorized" element={<h2>Access Denied</h2>} />
       </Routes>
     </Router>

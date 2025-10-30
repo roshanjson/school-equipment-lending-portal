@@ -12,7 +12,19 @@ exports.search = async (req, res) => {
     if (equipmentId) where.equipmentId = equipmentId;
     if (status) where.status = status;
 
-    const borrowRequest = await BorrowRequest.findAll({ where });
+    const borrowRequest = await BorrowRequest.findAll({ where,
+      include: [
+        {
+          model: Equipment,
+          attributes: ["id", "name", "category", "condition", "quantity"],
+        },
+        {
+          model: User,
+          attributes: ["id", "name", "email", "role"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+     });
     res.json(borrowRequest);
   } 
   catch (err) 
@@ -70,7 +82,7 @@ exports.add = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const { userId, equipmentId, id, borrowDate, returnDate } = req.body;
+    const { userId, equipmentId, id, quantity, borrowDate, returnDate } = req.body;
 
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -81,7 +93,7 @@ exports.update = async (req, res) => {
     const request = await BorrowRequest.findByPk(id);
     if (!request) return res.status(404).json({ error: "Borrow request not found" });
 
-    await request.update({ borrowDate, returnDate });
+    await request.update({ quantity, borrowDate, returnDate });
     res.json({ message: "Borrow request updated", request });
   } 
   catch (err) 
@@ -114,7 +126,7 @@ exports.process = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const { id } = req.param;
+    const { id } = req.params;
     const request = await BorrowRequest.findByPk(id);
     if (!request) return res.status(404).json({ error: "Borrow request not found" });
 
