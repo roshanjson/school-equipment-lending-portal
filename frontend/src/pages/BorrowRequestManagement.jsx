@@ -186,6 +186,7 @@ const BorrowRequestsManagement = () => {
                           style={{ padding: "3px", borderRadius: "5px" }}
                         />
                       </td>
+                      {user?.role === "admin" && (
                       <td style={{ padding: "8px" }}>
                           <select
                             name="status"
@@ -204,6 +205,12 @@ const BorrowRequestsManagement = () => {
                             <option value="pending">PENDING</option>
                           </select>
                       </td>
+                      )}
+                      {user?.role !== "admin" && (
+                      <td style={{ padding: "8px" }}>
+                        {request.status.toUpperCase()}
+                      </td>
+                      )}
                     </>
                   ) : (
                     <>
@@ -230,9 +237,11 @@ const BorrowRequestsManagement = () => {
                           }
                         )}
                       </td>
+                      {user?.role !== "admin" && (
                       <td style={{ padding: "8px" }}>
-                    {request.status.toUpperCase()}
-                  </td>
+                        {request.status.toUpperCase()}
+                      </td>
+                      )}
                     </>
                   )}
 
@@ -277,53 +286,12 @@ const BorrowRequestsManagement = () => {
                       </>
                     ) : (
                       <>
-                        {/* <button
-                          onClick={() =>
-                            handleApprove(
-                              request.id,
-                              request.User?.id,
-                              request.Equipment?.id
-                            )
-                          }
-                          title="Approve"
-                          style={{
-                            background: "#20742bff",
-                            border: "none",
-                            color: "white",
-                            padding: "6px 10px",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                            marginRight: "5px",
-                          }}
-                        >
-                          <FiCheckCircle />
-                        </button>
                         <button
-                          onClick={() =>
-                            handleReject(
-                              request.id,
-                              request.User?.id,
-                              request.Equipment?.id
-                            )
-                          }
-                          title="Reject"
-                          style={{
-                            background: "#8a1e27ff",
-                            border: "none",
-                            color: "white",
-                            padding: "6px 10px",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                            marginRight: "5px",
-                          }}
-                        >
-                          <FiXCircle />
-                        </button> */}
-                        <button
+                          disabled={ user.role !== "admin" && request.status !== "requested" }
                           onClick={() => handleEdit(request)}
                           title="Edit"
                           style={{
-                            background: "#457b9d",
+                            background: user.role !== "admin" && request.status === "requested" ? "#457b9d" : "#8b8b8bff",
                             border: "none",
                             color: "white",
                             padding: "6px 10px",
@@ -335,10 +303,11 @@ const BorrowRequestsManagement = () => {
                           <FiEdit />
                         </button>
                         <button
+                          disabled={ user.role !== "admin" }
                           onClick={() => handleDelete(request.id)}
                           title="Delete"
                           style={{
-                            background: "#8a1e27ff",
+                            background: user.role === "admin" ? "#8a1e27ff" : "#8b8b8bff",
                             border: "none",
                             color: "white",
                             padding: "6px 10px",
