@@ -38,34 +38,6 @@ const BorrowRequestsManagement = () => {
     fetchRequests();
   }, []);
 
-  const handleApprove = async (requestId, userId, equipmentId) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.patch(
-        `${API_URL}/process`,
-        { id: requestId, userId, equipmentId, status: "approved" },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchRequests();
-    } catch (err) {
-      console.error("Error approving request:", err);
-    }
-  };
-
-  const handleReject = async (requestId, userId, equipmentId) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.patch(
-        `${API_URL}/process`,
-        { id: requestId, userId, equipmentId, status: "rejected" },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchRequests();
-    } catch (err) {
-      console.error("Error rejecting request:", err);
-    }
-  };
-
   const handleDelete = async (requestId) => {
     if (!window.confirm("Are you sure you want to delete this borrow request?")) return;
     try {
@@ -85,6 +57,7 @@ const BorrowRequestsManagement = () => {
       quantity: request.quantity || "",
       borrowDate: request.borrowDate ? request.borrowDate.slice(0, 10) : "",
       returnDate: request.returnDate ? request.returnDate.slice(0, 10) : "",
+      status: request.status || ""
     });
   };
 
@@ -104,6 +77,7 @@ const BorrowRequestsManagement = () => {
           quantity: editData.quantity,
           borrowDate: editData.borrowDate,
           returnDate: editData.returnDate,
+          status: editData.status
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -212,6 +186,31 @@ const BorrowRequestsManagement = () => {
                           style={{ padding: "3px", borderRadius: "5px" }}
                         />
                       </td>
+                      {user?.role === "admin" && (
+                      <td style={{ padding: "8px" }}>
+                          <select
+                            name="status"
+                            value={editData.status}
+                            onChange={handleChange}
+                            style={{
+                              padding: "3px",
+                              borderRadius: "5px",
+                              width: "120px",
+                            }}
+                          >
+                            <option value="requested">REQUESTED</option>
+                            <option value="approved">APPROVED</option>
+                            <option value="rejected">REJECTED</option>
+                            <option value="returned">RETURNED</option>
+                            <option value="pending">PENDING</option>
+                          </select>
+                      </td>
+                      )}
+                      {user?.role !== "admin" && (
+                      <td style={{ padding: "8px" }}>
+                        {request.status.toUpperCase()}
+                      </td>
+                      )}
                     </>
                   ) : (
                     <>
@@ -238,12 +237,14 @@ const BorrowRequestsManagement = () => {
                           }
                         )}
                       </td>
+                      {user?.role !== "admin" && (
+                      <td style={{ padding: "8px" }}>
+                        {request.status.toUpperCase()}
+                      </td>
+                      )}
                     </>
                   )}
 
-                  <td style={{ padding: "8px" }}>
-                    {request.status.toUpperCase()}
-                  </td>
                   <td style={{ padding: "8px" }}>
                     {editMode === request.id ? (
                       <>
@@ -286,52 +287,11 @@ const BorrowRequestsManagement = () => {
                     ) : (
                       <>
                         <button
-                          onClick={() =>
-                            handleApprove(
-                              request.id,
-                              request.User?.id,
-                              request.Equipment?.id
-                            )
-                          }
-                          title="Approve"
-                          style={{
-                            background: "#20742bff",
-                            border: "none",
-                            color: "white",
-                            padding: "6px 10px",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                            marginRight: "5px",
-                          }}
-                        >
-                          <FiCheckCircle />
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleReject(
-                              request.id,
-                              request.User?.id,
-                              request.Equipment?.id
-                            )
-                          }
-                          title="Reject"
-                          style={{
-                            background: "#8a1e27ff",
-                            border: "none",
-                            color: "white",
-                            padding: "6px 10px",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                            marginRight: "5px",
-                          }}
-                        >
-                          <FiXCircle />
-                        </button>
-                        <button
+                          disabled={ user.role !== "admin" && request.status !== "requested" }
                           onClick={() => handleEdit(request)}
                           title="Edit"
                           style={{
-                            background: "#457b9d",
+                            background: user.role !== "admin" && request.status === "requested" ? "#457b9d" : "#8b8b8bff",
                             border: "none",
                             color: "white",
                             padding: "6px 10px",
@@ -343,10 +303,11 @@ const BorrowRequestsManagement = () => {
                           <FiEdit />
                         </button>
                         <button
+                          disabled={ user.role !== "admin" }
                           onClick={() => handleDelete(request.id)}
                           title="Delete"
                           style={{
-                            background: "#8a1e27ff",
+                            background: user.role === "admin" ? "#8a1e27ff" : "#8b8b8bff",
                             border: "none",
                             color: "white",
                             padding: "6px 10px",

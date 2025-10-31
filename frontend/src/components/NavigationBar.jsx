@@ -56,22 +56,20 @@ const NavigationBar = () => {
             Manage Equipments
           </button>
         )}
-        {user?.role === "admin" && (
-          <button
-            onClick={() => navigate("/borrow-request-management")}
-            style={{
-              background: "#457b9d",
-              color: "white",
-              padding: "8px 16px",
-              border: "none",
-              borderRadius: "6px",
-              fontWeight: "bold",
-              cursor: "pointer"
-            }}
-          >
-            Manage Borrow Requests
-          </button>
-        )}
+        <button
+          onClick={() => navigate("/borrow-request-management")}
+          style={{
+            background: "#457b9d",
+            color: "white",
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: "6px",
+            fontWeight: "bold",
+            cursor: "pointer"
+          }}
+        >
+          Manage Borrow Requests
+        </button>
         <button
           onClick={handleLogout}
           style={{

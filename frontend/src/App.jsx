@@ -14,7 +14,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["student", "staff", "admin"]}><Dashboard /></ProtectedRoute>}/>
         <Route path="/equipment-management" element={<ProtectedRoute allowedRoles={["admin"]}><EquipmentManagement /></ProtectedRoute>}/>
-        <Route path="/borrow-request-management" element={<ProtectedRoute allowedRoles={["admin"]}><BorrowRequestManagement /></ProtectedRoute>}/>
+        <Route path="/borrow-request-management" element={<ProtectedRoute allowedRoles={["student", "staff", "admin"]}><BorrowRequestManagement /></ProtectedRoute>}/>
         <Route path="/unauthorized" element={<h2>Access Denied</h2>} />
       </Routes>
     </Router>
