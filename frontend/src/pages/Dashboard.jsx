@@ -7,6 +7,7 @@ const Dashboard = () => {
 const [equipment, setEquipment] = useState([]);
 const [selectedItems, setSelectedItems] = useState({});
 const [isInitialLoad, setIsInitialLoad] = useState(true);
+const [searchTerm, setSearchTerm] = useState("");
 
 useEffect(() => {
   fetchEquipment();
@@ -131,6 +132,10 @@ const getDefaultDates = () => {
     }
   };
 
+  const filteredEquipment = equipment.filter(item =>
+  item.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
   return (
     <div>
       <NavigationBar />
@@ -170,11 +175,27 @@ const getDefaultDates = () => {
           </div>
         </div>
 
+        <div style={{ marginTop: "20px", marginBottom: "10px" }}>
+          <input
+            type="text"
+            placeholder="Search by equipment name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+              fontSize: "1rem",
+            }}
+          />
+        </div>
+
         <div className="row mt-3">
-          {equipment.length === 0 ? (
+          {filteredEquipment.length === 0 ? (
             <p>No equipments are available for borrowing at the moment.</p>
           ) : (
-            equipment.map((item) => {
+            filteredEquipment.map((item) => {
               const quantity = selectedItems[item.id] || 0;
               return (
                 <div
