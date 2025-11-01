@@ -18,8 +18,11 @@ module.exports = (req, res, next) => {
   // Validate integer fields
   const integerFields = { quantity };
   for (const [key, value] of Object.entries(integerFields)) {
-    if (value !== undefined && typeof value !== 'integer' && parseInt(value, 10) >= 0) {
-      return res.status(400).json({ error: `${key} must be a positive integer` });
+    if (value !== undefined) {
+      const parsedValue = parseInt(value, 10);
+      if (isNaN(parsedValue) || parsedValue < 0) {
+        return res.status(400).json({ error: `${key} must be a positive integer` });
+      }
     }
   }
 
