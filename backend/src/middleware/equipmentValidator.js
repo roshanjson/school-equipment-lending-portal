@@ -1,8 +1,8 @@
 module.exports = (req, res, next) => {
   const { condition, quantity, availability } = req.body;
 
-  // Validate availability if provided
-  if (availability !== undefined) {
+  // Validate availability if provided and not null
+  if (availability !== undefined && availability !== null) {
     if (availability !== 'true' && availability !== 'false') {
         return res.status(400).json({ error: "Availability must be 'true' or 'false'" });
     }}
@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
   // Validate string fields
   const stringFields = { condition };
   for (const [key, value] of Object.entries(stringFields)) {
-    if (value !== undefined && typeof value !== 'string') {
+    if (value !== undefined && value !== null && typeof value !== 'string') {
       return res.status(400).json({ error: `${key} must be a string` });
     }
   }
@@ -18,9 +18,11 @@ module.exports = (req, res, next) => {
   // Validate integer fields
   const integerFields = { quantity };
   for (const [key, value] of Object.entries(integerFields)) {
-    if (value !== undefined) {
-      const parsed = parseInt(value, 10);
-      if (isNaN(parsed) || parsed < 0) { return res.status(400).json({ error: "quantity must be a positive integer" }); }
+    if (value !== undefined && value !== null) {
+      const parsedValue = parseInt(value, 10);
+      if (isNaN(parsedValue) || parsedValue < 0) {
+        return res.status(400).json({ error: `${key} must be a positive integer` });
+      }
     }
   }
 
