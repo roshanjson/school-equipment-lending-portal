@@ -30,7 +30,7 @@ The School Equipment Lending Portal is a comprehensive system that enables schoo
 - Swagger for API documentation
 
 ### Database Schema
-![school_equipment_db schema](../backend/diagrams/school_equipment_db.png)
+![school_equipment_db schema](backend/diagrams/school_equipment_db.png)
 
 ## Project Structure
 
