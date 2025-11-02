@@ -93,6 +93,11 @@ exports.update = async (req, res) => {
     const request = await BorrowRequest.findByPk(id);
     if (!request) return res.status(404).json({ error: "Borrow request not found" });
 
+    if(status === "returned")
+      {
+        returnDate
+      }
+
     await request.update({ quantity, borrowDate, returnDate, status });
     res.json({ message: "Borrow request updated", request });
   } 

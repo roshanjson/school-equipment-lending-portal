@@ -118,7 +118,8 @@ const BorrowRequestsManagement = () => {
   const fetchRequests = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_URL}?ts=${Date.now()}`, {
+      const url = user.role === "admin" ? `${API_URL}?ts=${Date.now()}` : `${API_URL}?ts=${Date.now()}&userId=${user.id}`;
+      const response = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Cache-Control": "no-cache",
@@ -402,6 +403,7 @@ const BorrowRequestsManagement = () => {
                               </ActionButton>
                             </span>
                           </Tooltip>
+                          {user.role === "admin" && (
                           <Tooltip title="Delete" arrow>
                             <span>
                               <ActionButton
@@ -419,6 +421,7 @@ const BorrowRequestsManagement = () => {
                               </ActionButton>
                             </span>
                           </Tooltip>
+                          )}
                         </Box>
                       )}
                     </StyledTableCell>
