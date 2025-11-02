@@ -1,0 +1,59 @@
+roshanjson: Merge Manage Equipment and Manage Browse Requests buttons into a single Palette button with two options for admins. For non-admin users let the Manage Browse Requests button be a simple button
+
+GitHub Copilot: I'll help you modify the `NavigationBar.jsx` component to create a palette button for admins that combines both management options, while keeping a simple button for non-admin users. I'll use Material-UI components for this implementation.
+
+First, let's modify the NavigationBar component: 
+
+Using "Replace String in File"
+
+
+```
+
+```
+Now let's modify the button section: 
+
+Using "Replace String in File"
+
+
+```
+
+```
+Let's install the required Material-UI dependencies: 
+
+Ran terminal command: cd frontend && npm install @mui/material @emotion/react @emotion/styled @mui/icons-material
+
+I apologize for the PowerShell syntax error. Let's try the commands separately: 
+
+Ran terminal command: cd frontend
+
+Ran terminal command: npm install @mui/material @emotion/react @emotion/styled @mui/icons-material
+
+I see there's an issue with PowerShell execution policies. Let me know if you need help with installing the dependencies. For now, I've updated the `NavigationBar.jsx` component with the new UI changes. Here's what I've done:
+
+1. Added state management for the dropdown menu using `useState`
+2. Added Material-UI components (`Menu`, `MenuItem`, and `ArrowDropDownIcon`)
+3. Created a dropdown button for admin users that combines both management options
+4. Kept a simple button for non-admin users to access borrow request management
+
+The changes create a more streamlined interface where:
+- Admin users see a single "Management Options" button with a dropdown
+- Clicking the button shows options for "Manage Equipments" and "Manage Borrow Requests"
+- Non-admin users still see a simple "Manage Borrow Requests" button
+
+To make this work properly, you'll need to install the Material-UI dependencies. You can do this by running these npm commands in your frontend directory:
+```
+npm install @mui/material @emotion/react @emotion/styled @mui/icons-material
+```
+
+Would you like me to help you with installing the dependencies or would you prefer to do it manually?
+
+Made changes.
+
+roshanjson: Installed it manually
+
+GitHub Copilot: Great that you've installed the Material-UI dependencies manually! The code I provided earlier should now work properly. The navigation bar will now show:
+
+- For admin users: A combined "Management Options" dropdown button with both "Manage Equipments" and "Manage Borrow Requests" options
+- For non-admin users: A simple "Manage Borrow Requests" button
+
+You should see the Material-UI styled dropdown menu when clicking the "Management Options" button as an admin. Is everything working as expected? Let me know if you need any adjustments to the styling or functionality.
