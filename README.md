@@ -29,6 +29,9 @@ The School Equipment Lending Portal is a comprehensive system that enables schoo
 - JWT for authentication
 - Swagger for API documentation
 
+### Database Schema
+![school_equipment_db schema](backend/diagrams/school_equipment_db.png)
+
 ## Project Structure
 
 ```
