@@ -118,7 +118,8 @@ const BorrowRequestsManagement = () => {
   const fetchRequests = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_URL}?ts=${Date.now()}`, {
+      const url = user.role === "admin" ? `${API_URL}?ts=${Date.now()}` : `${API_URL}?ts=${Date.now()}&userId=${user.id}`;
+      const response = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Cache-Control": "no-cache",
