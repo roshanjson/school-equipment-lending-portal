@@ -1,8 +1,21 @@
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../context/authContext";
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 const NavigationBar = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -40,9 +53,46 @@ const NavigationBar = () => {
         >
           Dashboard
         </button>
-        {user?.role === "admin" && (
+        {user?.role === "admin" ? (
+          <>
+            <button
+              onClick={handleClick}
+              style={{
+                background: "#457b9d",
+                color: "white",
+                padding: "8px 16px",
+                border: "none",
+                borderRadius: "6px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px"
+              }}
+            >
+              Manage <ArrowDropDownIcon />
+            </button>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
+              <MenuItem onClick={() => {
+                navigate("/equipment-management");
+                handleClose();
+              }}>Equipments</MenuItem>
+              <MenuItem onClick={() => {
+                navigate("/borrow-request-management");
+                handleClose();
+              }}>Borrow Requests</MenuItem>
+            </Menu>
+          </>
+        ) : (
           <button
-            onClick={() => navigate("/equipment-management")}
+            onClick={() => navigate("/borrow-request-management")}
             style={{
               background: "#457b9d",
               color: "white",
@@ -53,23 +103,9 @@ const NavigationBar = () => {
               cursor: "pointer"
             }}
           >
-            Manage Equipments
+            Manage Borrow Requests
           </button>
         )}
-        <button
-          onClick={() => navigate("/borrow-request-management")}
-          style={{
-            background: "#457b9d",
-            color: "white",
-            padding: "8px 16px",
-            border: "none",
-            borderRadius: "6px",
-            fontWeight: "bold",
-            cursor: "pointer"
-          }}
-        >
-          Manage Borrow Requests
-        </button>
         <button
           onClick={handleLogout}
           style={{
