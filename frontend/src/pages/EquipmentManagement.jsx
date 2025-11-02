@@ -1,7 +1,92 @@
 import React, { useState, useEffect } from "react";
 import NavigationBar from "../components/NavigationBar";
 import axios from "axios";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import {
+  Box,
+  Container,
+  Typography,
+  Paper,
+  TextField,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  IconButton,
+  Switch,
+  Card,
+  FormControlLabel,
+  Tooltip,
+  Fade,
+  Snackbar,
+  Alert,
+  Chip
+} from '@mui/material';
+import { styled, alpha } from '@mui/material/styles';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import WarningIcon from '@mui/icons-material/Warning';
+
+// Styled Components
+const StyledCard = styled(Card)(({ theme }) => ({
+  background: 'linear-gradient(135deg, #1d3557 0%, #2a4a7f 100%)',
+  borderRadius: '16px',
+  padding: theme.spacing(3),
+  marginBottom: theme.spacing(4),
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+  width: '100%',
+  maxWidth: '500px',
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-4px)',
+  },
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: alpha('#fff', 0.9),
+    borderRadius: '8px',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      backgroundColor: '#fff',
+    },
+    '&.Mui-focused': {
+      backgroundColor: '#fff',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: theme.palette.grey[700],
+  },
+}));
+
+const ActionButton = styled(Button)(({ theme, color }) => ({
+  borderRadius: '8px',
+  padding: theme.spacing(1, 3),
+  textTransform: 'none',
+  fontWeight: 600,
+  boxShadow: 'none',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  },
+}));
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  color: 'white',
+  padding: theme.spacing(2),
+  borderBottom: `1px solid ${alpha('#fff', 0.1)}`,
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  transition: 'background-color 0.3s ease',
+  '&:hover': {
+    backgroundColor: alpha('#fff', 0.05),
+  },
+}));
 
 const EquipmentManagement = () => {
   const [equipments, setEquipments] = useState([]);
@@ -14,9 +99,26 @@ const EquipmentManagement = () => {
   });
   const [editMode, setEditMode] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const [error, setError] = useState(null);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   const API_URL = "http://localhost:5000/api/equipment";
+
+  const showNotification = (message, severity = 'success') => {
+    setNotification({
+      open: true,
+      message,
+      severity
+    });
+  };
+
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setNotification(prev => ({ ...prev, open: false }));
+  };
 
   const fetchEquipments = async () => {
     try {
@@ -28,11 +130,12 @@ const EquipmentManagement = () => {
       },
       });
       setEquipments(Array.isArray(res.data) ? res.data : res.data.equipments || []);
+      showNotification('Equipment list updated successfully');
     } 
     catch (err) 
     {
       console.error("Error fetching equipments:", err);
-      setError("Failed to fetch equipments");
+      showNotification('Failed to fetch equipments', 'error');
     }
   };
 
@@ -52,19 +155,19 @@ const EquipmentManagement = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      console.error("Token:", token);
       await axios.post(API_URL, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+      showNotification('Equipment added successfully');
       fetchEquipments();
       resetForm();
     } 
     catch (err) 
     {
       console.error("Error adding equipment:", err);
-      setError(err.response?.data?.error || "Failed to add equipment");
+      showNotification(err.response?.data?.error || "Failed to add equipment", 'error');
     }
   };
 
@@ -86,38 +189,39 @@ const EquipmentManagement = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.patch(API_URL, {
-          ...formData,
-          id: selectedId,
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+        ...formData,
+        id: selectedId,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      showNotification('Equipment updated successfully');
       fetchEquipments();
       resetForm();
     } 
     catch (err) 
     {
       console.error("Error updating equipment:", err);
-      setError(err.response?.data?.error || "Failed to update equipment");
+      showNotification(err.response?.data?.error || "Failed to update equipment", 'error');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this equipment?")) return;
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`${API_URL}/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+      showNotification('Equipment deleted successfully');
       fetchEquipments();
     } 
     catch (err) 
     {
       console.error("Error deleting equipment:", err);
-      setError(err.response?.data?.error || "Failed to delete equipment");
+      showNotification(err.response?.data?.error || "Failed to delete equipment", 'error');
     }
   };
 
@@ -134,186 +238,241 @@ const EquipmentManagement = () => {
   };
 
   return (
-    <div>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
       <NavigationBar />
-      <div style={{ padding: "20px", color: "white" }}>
-        <h2 style={{ color: "#457b9d" }}>Equipment Management</h2>
-        <form
-          onSubmit={editMode ? handleUpdate : handleAdd}
-          style={{
-            background: "#1d3557",
-            padding: "20px",
-            borderRadius: "10px",
-            width: "400px",
-            marginBottom: "30px",
-          }}
-        >
-          <label>Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            disabled={editMode}
-            style={{ width: "100%", marginBottom: "10px" }}
-          />
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" color="primary" fontWeight="bold" gutterBottom>
+            Equipment Management
+          </Typography>
+        </Box>
 
-          <label>Category:</label>
-          <input
-            type="text"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            required
-            disabled={editMode}
-            style={{ width: "100%", marginBottom: "10px" }}
-          />
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <StyledCard component="form" onSubmit={editMode ? handleUpdate : handleAdd}>
+            <Typography variant="h6" color="white" gutterBottom>
+              {editMode ? 'Update Equipment' : 'Add New Equipment'}
+            </Typography>
 
-          <label>Condition:</label>
-          <input
-            type="text"
-            name="condition"
-            value={formData.condition}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", marginBottom: "10px" }}
-          />
+            <Typography sx={{ color: 'white' }}>
+              Name
+            </Typography>
 
-          <label>Quantity:</label>
-          <input
-            type="number"
-            name="quantity"
-            value={formData.quantity}
-            onChange={handleChange}
-            required
-            min="0"
-            style={{ width: "100%", marginBottom: "10px" }}
-          />
-
-          <label style={{ display: "flex", alignItems: "center" }}>
-            <input
-              type="checkbox"
-              name="availability"
-              checked={formData.availability === "true"}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  availability: e.target.checked ? "true" : "false"
-                })
-              }
-              style={{ marginRight: "10px" }}
+            <StyledTextField
+              fullWidth
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              disabled={editMode}
+              variant="outlined"
             />
-            Available
-          </label>
 
-          <button
-            type="submit"
-            style={{
-              backgroundColor: editMode ? "#ffb703" : "#457b9d",
-              color: "white",
-              border: "none",
-              padding: "10px 20px",
-              borderRadius: "6px",
-              cursor: "pointer",
-              marginTop: "10px",
-            }}
-          >
-            {editMode ? "Update Equipment" : "Add Equipment"}
-          </button>
+            <Typography sx={{ color: 'white' }}>
+              Category
+            </Typography>
 
-          {editMode && (
-            <button
-              type="button"
-              onClick={resetForm}
-              style={{
-                marginLeft: "10px",
-                backgroundColor: "#999",
-                color: "white",
-                border: "none",
-                padding: "10px 20px",
-                borderRadius: "6px",
-                cursor: "pointer",
+            <StyledTextField
+              fullWidth
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+              disabled={editMode}
+              variant="outlined"
+            />
+
+            <Typography sx={{ color: 'white' }}>
+              Condition
+            </Typography>
+
+            <StyledTextField
+              fullWidth
+              name="condition"
+              value={formData.condition}
+              onChange={handleChange}
+              required
+              variant="outlined"
+            />
+
+            <Typography sx={{ color: 'white' }}>
+              Quantity
+            </Typography>
+
+            <StyledTextField
+              fullWidth
+              name="quantity"
+              type="number"
+              value={formData.quantity}
+              onChange={handleChange}
+              required
+              variant="outlined"
+              inputProps={{ min: 0 }}
+            />
+
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={formData.availability === "true"}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      availability: e.target.checked ? "true" : "false"
+                    })
+                  }
+                  sx={{ 
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#457b9d',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#457b9d',
+                    },
+                  }}
+                />
+              }
+              label={<Typography color="white">Available</Typography>}
+              sx={{ mb: 2 }}
+            />
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <ActionButton
+                type="submit"
+                variant="contained"
+                sx={{
+                  bgcolor: editMode ? '#ffb703' : '#457b9d',
+                  '&:hover': {
+                    bgcolor: editMode ? '#faa000' : '#2b5876',
+                  }
+                }}
+              >
+                {editMode ? 'Update Equipment' : 'Add Equipment'}
+              </ActionButton>
+
+              {editMode && (
+                <ActionButton
+                  onClick={resetForm}
+                  variant="contained"
+                  sx={{
+                    bgcolor: 'grey.600',
+                    '&:hover': {
+                      bgcolor: 'grey.700',
+                    }
+                  }}
+                >
+                  Cancel
+                </ActionButton>
+              )}
+            </Box>
+          </StyledCard>
+
+          <Box sx={{ flexGrow: 1 }}>
+            <TableContainer 
+              component={Paper} 
+              sx={{ 
+                bgcolor: '#1d3557',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
               }}
             >
-              Cancel
-            </button>
-          )}
-        </form>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#457b9d' }}>
+                    <StyledTableCell>Name</StyledTableCell>
+                    <StyledTableCell>Category</StyledTableCell>
+                    <StyledTableCell>Condition</StyledTableCell>
+                    <StyledTableCell>Quantity</StyledTableCell>
+                    <StyledTableCell>Available</StyledTableCell>
+                    <StyledTableCell>Actions</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {equipments.length > 0 ? (
+                    equipments.map((item) => (
+                      <StyledTableRow key={item.id}>
+                        <StyledTableCell>{item.name}</StyledTableCell>
+                        <StyledTableCell>{item.category}</StyledTableCell>
+                        <StyledTableCell>{item.condition}</StyledTableCell>
+                        <StyledTableCell>{item.quantity}</StyledTableCell>
+                        <StyledTableCell>
+                          <Chip
+                            label={item.availability ? "Yes" : "No"}
+                            color={item.availability ? "success" : "error"}
+                            size="small"
+                          />
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          <Tooltip title="Edit" arrow>
+                            <IconButton
+                              onClick={() => handleEdit(item)}
+                              size="small"
+                              sx={{ 
+                                color: '#faa000',
+                                bgcolor: alpha('#fff', 0.1),
+                                mr: 1,
+                                '&:hover': {
+                                  bgcolor: alpha('#faa000', 0.2),
+                                }
+                              }}
+                            >
+                              <EditIcon fontSize="small"/>
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete" arrow>
+                            <IconButton
+                              onClick={() => {
+                                if (window.confirm("Are you sure you want to delete this equipment?")) {
+                                  handleDelete(item.id);
+                                }
+                              }}
+                              size="small"
+                              sx={{ 
+                                color: '#ff1744',
+                                bgcolor: alpha('#fff', 0.1),
+                                '&:hover': {
+                                  bgcolor: alpha('#ff1744', 0.2),
+                                }
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </StyledTableCell>
+                      </StyledTableRow>
+                    ))
+                  ) : (
+                    <StyledTableRow>
+                      <StyledTableCell colSpan={6} align="center">
+                        <Box sx={{ py: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+                          <WarningIcon sx={{ color: 'warning.main' }} />
+                          <Typography color="white">No equipment found.</Typography>
+                        </Box>
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
 
-        <h3 style={{ color: "#457b9d" }}>All Equipments</h3>
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            background: "#1d3557",
-            borderRadius: "8px",
-            overflow: "hidden"
-          }}
+        <Snackbar
+          open={notification.open}
+          autoHideDuration={3000}
+          onClose={handleCloseNotification}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          TransitionComponent={Fade}
         >
-          <thead style={{ background: "#457b9d", color: "white" }}>
-            <tr>
-              <th style={{ padding: "10px" }}>Name</th>
-              <th style={{ padding: "10px" }}>Category</th>
-              <th style={{ padding: "10px" }}>Condition</th>
-              <th style={{ padding: "10px" }}>Quantity</th>
-              <th style={{ padding: "10px" }}>Available</th>
-              <th style={{ padding: "10px" }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {equipments.length > 0 ? (
-              equipments.map((item) => (
-                <tr key={item.id} style={{ textAlign: "left" }}>
-                  <td style={{ padding: "5px 0px 5px 10px" }}>{item.name}</td>
-                  <td style={{ padding: "5px 0px 5px 10px" }}>{item.category}</td>
-                  <td style={{ padding: "5px 0px 5px 10px" }}>{item.condition}</td>
-                  <td style={{ padding: "5px 0px 5px 10px" }}>{item.quantity}</td>
-                  <td style={{ padding: "5px 0px 5px 10px" }}>{item.availability ? "Yes" : "No"}</td>
-                  <td style={{ padding: "5px 0px 10px 10px" }}>
-                    <button
-                      onClick={() => handleEdit(item)}
-                      style={{
-                        color: "white",
-                        background: "#457b9d",
-                        border: "none",
-                        padding: "5px 10px",
-                        borderRadius: "5px",
-                        marginRight: "5px",
-                        cursor: "pointer",
-                        alignContent: "center"
-                      }}
-                    >
-                      <FiEdit size={18} color="white" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      style={{
-                        background: "#8a1e27ff",
-                        border: "none",
-                        padding: "5px 10px",
-                        borderRadius: "5px",
-                        color: "white",
-                        cursor: "pointer",
-                        alignContent: "center"
-                      }}
-                    >
-                      <FiTrash2 size={18} color="white" />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" style={{ color: "white", padding: "10px" }}>
-                  No equipment found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          <Alert
+            onClose={handleCloseNotification}
+            severity={notification.severity}
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            {notification.message}
+          </Alert>
+        </Snackbar>
+      </Container>
+    </Box>
   );
 };
 
