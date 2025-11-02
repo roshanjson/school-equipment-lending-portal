@@ -402,6 +402,7 @@ const BorrowRequestsManagement = () => {
                               </ActionButton>
                             </span>
                           </Tooltip>
+                          {user.role === "admin" && (
                           <Tooltip title="Delete" arrow>
                             <span>
                               <ActionButton
@@ -419,6 +420,7 @@ const BorrowRequestsManagement = () => {
                               </ActionButton>
                             </span>
                           </Tooltip>
+                          )}
                         </Box>
                       )}
                     </StyledTableCell>
