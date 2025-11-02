@@ -1,17 +1,113 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/authContext";
-import {
-  FiCheckCircle,
-  FiXCircle,
-  FiRefreshCcw,
-  FiEdit,
-  FiTrash2,
-  FiSave,
-} from "react-icons/fi";
 import NavigationBar from "../components/NavigationBar";
+import {
+  Box,
+  Container,
+  Typography,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  IconButton,
+  TextField,
+  Select,
+  MenuItem,
+  Tooltip,
+  Chip,
+  Fade,
+  Snackbar,
+  Alert,
+  FormControl,
+} from '@mui/material';
+import { styled, alpha } from '@mui/material/styles';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
+import RefreshIcon from '@mui/icons-material/Refresh';
+
+// Helper function for status chip styles
+const getStatusStyles = (status) => {
+  const styles = {
+    requested: { backgroundColor: '#ff9800', color: 'white' },
+    approved: { backgroundColor: '#4caf50', color: 'white' },
+    rejected: { backgroundColor: '#f44336', color: 'white' },
+    returned: { backgroundColor: '#2196f3', color: 'white' },
+    pending: { backgroundColor: '#757575', color: 'white' },
+  };
+  return styles[status?.toLowerCase()] || styles.pending;
+};
+
+// Styled Components
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  color: 'white',
+  padding: theme.spacing(2),
+  borderBottom: `1px solid ${alpha('#fff', 0.1)}`,
+  '&.MuiTableCell-head': {
+    backgroundColor: '#457b9d',
+    fontWeight: 600,
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  transition: 'background-color 0.3s ease',
+  '&:hover': {
+    backgroundColor: alpha('#fff', 0.05),
+  },
+  '& td': {
+    color: 'white',
+  },
+}));
+
+const StatusChip = styled(Chip)(({ theme, status }) => ({
+  fontWeight: 600,
+  borderRadius: '8px',
+  ...getStatusStyles(status),
+}));
+
+const ActionButton = styled(IconButton)(({ theme }) => ({
+  backgroundColor: alpha('#fff', 0.1),
+  transition: 'all 0.3s ease',
+  marginRight: theme.spacing(1),
+  padding: theme.spacing(1),
+  '&:hover': {
+    backgroundColor: alpha('#fff', 0.2),
+  },
+  '&.Mui-disabled': {
+    backgroundColor: alpha('#fff', 0.05),
+  },
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: alpha('#fff', 0.9),
+    borderRadius: '8px',
+    '& fieldset': {
+      borderColor: alpha('#fff', 0.3),
+    },
+    '&:hover fieldset': {
+      borderColor: alpha('#fff', 0.5),
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#457b9d',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: theme.palette.grey[700],
+  },
+}));
 
 const BorrowRequestsManagement = () => {
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
   const [requests, setRequests] = useState([]);
   const [editMode, setEditMode] = useState(null);
   const [editData, setEditData] = useState({});
@@ -31,12 +127,26 @@ const BorrowRequestsManagement = () => {
       setRequests(response.data);
     } catch (err) {
       console.error("Error fetching borrow requests:", err);
+      showNotification('Error fetching borrow requests', 'error');
     }
   };
 
   useEffect(() => {
     fetchRequests();
   }, []);
+
+  const showNotification = (message, severity = 'success') => {
+    setNotification({
+      open: true,
+      message,
+      severity
+    });
+  };
+
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setNotification(prev => ({ ...prev, open: false }));
+  };
 
   const handleDelete = async (requestId) => {
     if (!window.confirm("Are you sure you want to delete this borrow request?")) return;
@@ -45,9 +155,11 @@ const BorrowRequestsManagement = () => {
       await axios.delete(`${API_URL}/${requestId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      showNotification('Borrow request deleted successfully');
       fetchRequests();
     } catch (err) {
       console.error("Error deleting request:", err);
+      showNotification('Failed to delete borrow request', 'error');
     }
   };
 
@@ -68,7 +180,6 @@ const BorrowRequestsManagement = () => {
   const handleSaveEdit = async (requestId, userId, equipmentId) => {
     try {
       const token = localStorage.getItem("token");
-      console.log( editData.quantity);
       await axios.patch(`${API_URL}/`,
         {
           id: requestId,
@@ -82,9 +193,11 @@ const BorrowRequestsManagement = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setEditMode(null);
+      showNotification('Borrow request updated successfully');
       fetchRequests();
     } catch (err) {
       console.error("Error saving edit:", err);
+      showNotification('Failed to update borrow request', 'error');
     }
   };
 
@@ -94,239 +207,246 @@ const BorrowRequestsManagement = () => {
   };
 
   return (
-    <div>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
       <NavigationBar />
-      <div style={{ padding: "20px", color: "white" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <h2 style={{ color: "#457b9d" }}>Borrow Requests Management</h2>
-          <FiRefreshCcw
-            size={22}
-            style={{ cursor: "pointer", color: "#457b9d" }}
-            title="Refresh"
-            onClick={fetchRequests}
-          />
-        </div>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 4
+        }}>
+          <Typography variant="h4" color="primary" fontWeight="bold">
+            Borrow Requests Management
+          </Typography>
+          <Tooltip title="Refresh requests" arrow>
+            <IconButton 
+              onClick={fetchRequests}
+              sx={{ 
+                backgroundColor: alpha('#457b9d', 0.1),
+                '&:hover': { 
+                  backgroundColor: alpha('#457b9d', 0.2),
+                  transform: 'rotate(180deg)',
+                  transition: 'transform 0.5s ease-in-out'
+                }
+              }}
+            >
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
 
         {requests.length === 0 ? (
-          <p>No borrow requests found.</p>
+          <Paper sx={{ p: 3, bgcolor: '#1d3557', borderRadius: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+              <Typography color="white">No borrow requests found.</Typography>
+            </Box>
+          </Paper>
         ) : (
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              marginTop: "20px",
-              background: "#1d3557",
-              borderRadius: "8px",
-              overflow: "hidden",
+          <TableContainer 
+            component={Paper} 
+            sx={{ 
+              bgcolor: '#1d3557',
+              borderRadius: 2,
+              overflow: 'hidden',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
             }}
           >
-            <thead style={{ background: "#457b9d", color: "white" }}>
-              <tr>
-                <th style={{ padding: "10px" }}>Request ID</th>
-                <th style={{ padding: "10px" }}>Student ID</th>
-                <th style={{ padding: "10px" }}>Student Name</th>
-                <th style={{ padding: "10px" }}>Equipment</th>
-                <th style={{ padding: "10px" }}>Quantity</th>
-                <th style={{ padding: "10px" }}>Borrow Date</th>
-                <th style={{ padding: "10px" }}>Return Date</th>
-                <th style={{ padding: "10px" }}>Status</th>
-                <th style={{ padding: "10px" }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requests.map((request) => (
-                <tr key={request.id} style={{ textAlign: "left" }}>
-                  <td style={{ padding: "8px 0px 8px 10px" }}>{request.id}</td>
-                  <td style={{ padding: "8px 0px 8px 10px" }}>
-                    {request.User?.id || "N/A"}
-                  </td>
-                  <td style={{ padding: "8px 0px 8px 10px" }}>
-                    {request.User?.name || "N/A"}
-                  </td>
-                  <td style={{ padding: "8px 0px 8px 10px" }}>
-                    {request.Equipment?.name || "N/A"}
-                  </td>
-
-                  {editMode === request.id ? (
-                    <>
-                      <td style={{ padding: "8px" }}>
-                        <input
-                          type="number"
-                          name="quantity"
-                          value={editData.quantity}
-                          onChange={handleChange}
-                          style={{
-                            width: "60px",
-                            padding: "3px",
-                            borderRadius: "5px",
-                          }}
-                        />
-                      </td>
-                      <td style={{ padding: "8px" }}>
-                        <input
-                          type="date"
-                          name="borrowDate"
-                          value={editData.borrowDate}
-                          onChange={handleChange}
-                          style={{ padding: "3px", borderRadius: "5px" }}
-                        />
-                      </td>
-                      <td style={{ padding: "8px" }}>
-                        <input
-                          type="date"
-                          name="returnDate"
-                          value={editData.returnDate}
-                          onChange={handleChange}
-                          style={{ padding: "3px", borderRadius: "5px" }}
-                        />
-                      </td>
-                      {user?.role === "admin" && (
-                      <td style={{ padding: "8px" }}>
-                          <select
-                            name="status"
-                            value={editData.status}
-                            onChange={handleChange}
-                            style={{
-                              padding: "3px",
-                              borderRadius: "5px",
-                              width: "120px",
-                            }}
-                          >
-                            <option value="requested">REQUESTED</option>
-                            <option value="approved">APPROVED</option>
-                            <option value="rejected">REJECTED</option>
-                            <option value="returned">RETURNED</option>
-                            <option value="pending">PENDING</option>
-                          </select>
-                      </td>
-                      )}
-                      {user?.role !== "admin" && (
-                      <td style={{ padding: "8px" }}>
-                        {request.status.toUpperCase()}
-                      </td>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <td style={{ padding: "8px" }}>{request.quantity}</td>
-                      <td style={{ padding: "8px" }}>
-                        {new Date(request.borrowDate).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            weekday: "short",
-                            day: "2-digit",
-                            year: "numeric",
-                          }
-                        )}
-                      </td>
-                      <td style={{ padding: "8px" }}>
-                        {new Date(request.returnDate).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            weekday: "short",
-                            day: "2-digit",
-                            year: "numeric",
-                          }
-                        )}
-                      </td>
-                      {user?.role !== "admin" && (
-                      <td style={{ padding: "8px" }}>
-                        {request.status.toUpperCase()}
-                      </td>
-                      )}
-                    </>
-                  )}
-
-                  <td style={{ padding: "8px" }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell>Request ID</StyledTableCell>
+                  <StyledTableCell>Student ID</StyledTableCell>
+                  <StyledTableCell>Student Name</StyledTableCell>
+                  <StyledTableCell>Equipment</StyledTableCell>
+                  <StyledTableCell>Quantity</StyledTableCell>
+                  <StyledTableCell>Borrow Date</StyledTableCell>
+                  <StyledTableCell>Return Date</StyledTableCell>
+                  <StyledTableCell>Status</StyledTableCell>
+                  <StyledTableCell>Actions</StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {requests.map((request) => (
+                  <StyledTableRow key={request.id}>
+                    <StyledTableCell>{request.id}</StyledTableCell>
+                    <StyledTableCell>{request.User?.id || "N/A"}</StyledTableCell>
+                    <StyledTableCell>{request.User?.name || "N/A"}</StyledTableCell>
+                    <StyledTableCell>{request.Equipment?.name || "N/A"}</StyledTableCell>
+                    
                     {editMode === request.id ? (
                       <>
-                        <button
-                          onClick={() =>
-                            handleSaveEdit(
-                              request.id,
-                              request.User?.id,
-                              request.Equipment?.id
-                            )
-                          }
-                          title="Save"
-                          style={{
-                            background: "#20742bff",
-                            border: "none",
-                            color: "white",
-                            padding: "6px 10px",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                            marginRight: "5px",
-                          }}
-                        >
-                          <FiSave />
-                        </button>
-                        <button
-                          onClick={handleCancelEdit}
-                          title="Cancel"
-                          style={{
-                            background: "#8a1e27ff",
-                            border: "none",
-                            color: "white",
-                            padding: "6px 10px",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <FiXCircle />
-                        </button>
+                        <StyledTableCell>
+                          <StyledTextField
+                            type="number"
+                            name="quantity"
+                            value={editData.quantity}
+                            onChange={handleChange}
+                            size="small"
+                            sx={{ width: '80px' }}
+                            inputProps={{ min: 1 }}
+                          />
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          <StyledTextField
+                            type="date"
+                            name="borrowDate"
+                            value={editData.borrowDate}
+                            onChange={handleChange}
+                            size="small"
+                          />
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          <StyledTextField
+                            type="date"
+                            name="returnDate"
+                            value={editData.returnDate}
+                            onChange={handleChange}
+                            size="small"
+                          />
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          {user?.role === "admin" ? (
+                            <FormControl fullWidth size="small">
+                              <Select
+                                name="status"
+                                value={editData.status}
+                                onChange={handleChange}
+                                sx={{ 
+                                  bgcolor: alpha('#fff', 0.9),
+                                  borderRadius: 2,
+                                  minWidth: 120
+                                }}
+                              >
+                                <MenuItem value="requested">REQUESTED</MenuItem>
+                                <MenuItem value="approved">APPROVED</MenuItem>
+                                <MenuItem value="rejected">REJECTED</MenuItem>
+                                <MenuItem value="returned">RETURNED</MenuItem>
+                                <MenuItem value="pending">PENDING</MenuItem>
+                              </Select>
+                            </FormControl>
+                          ) : (
+                            <StatusChip
+                              label={request.status.toUpperCase()}
+                              status={request.status}
+                            />
+                          )}
+                        </StyledTableCell>
                       </>
                     ) : (
                       <>
-                        <button
-                          disabled={ user.role !== "admin" && request.status !== "requested" }
-                          onClick={() => handleEdit(request)}
-                          title="Edit"
-                          style={{
-                            background: user.role !== "admin" && request.status === "requested" ? "#457b9d" : "#8b8b8bff",
-                            border: "none",
-                            color: "white",
-                            padding: "6px 10px",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                            marginRight: "5px",
-                          }}
-                        >
-                          <FiEdit />
-                        </button>
-                        <button
-                          disabled={ user.role !== "admin" }
-                          onClick={() => handleDelete(request.id)}
-                          title="Delete"
-                          style={{
-                            background: user.role === "admin" ? "#8a1e27ff" : "#8b8b8bff",
-                            border: "none",
-                            color: "white",
-                            padding: "6px 10px",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <FiTrash2 />
-                        </button>
+                        <StyledTableCell>{request.quantity}</StyledTableCell>
+                        <StyledTableCell>
+                          {new Date(request.borrowDate).toLocaleDateString("en-US", {
+                            month: "short",
+                            weekday: "short",
+                            day: "2-digit",
+                            year: "numeric",
+                          })}
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          {new Date(request.returnDate).toLocaleDateString("en-US", {
+                            month: "short",
+                            weekday: "short",
+                            day: "2-digit",
+                            year: "numeric",
+                          })}
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          <StatusChip
+                            label={request.status.toUpperCase()}
+                            status={request.status}
+                          />
+                        </StyledTableCell>
                       </>
                     )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+                    <StyledTableCell>
+                      {editMode === request.id ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'left', gap: 1 }}>
+                          <ActionButton
+                            onClick={() => handleSaveEdit(
+                              request.id,
+                              request.User?.id,
+                              request.Equipment?.id
+                            )}
+                            sx={{ color: '#4caf50' }}
+                          >
+                            <SaveIcon fontSize="small" />
+                          </ActionButton>
+                          <ActionButton
+                            onClick={handleCancelEdit}
+                            sx={{ color: '#f44336' }}
+                          >
+                            <CancelIcon fontSize="small" />
+                          </ActionButton>
+                        </Box>
+                      ) : (
+                        <Box sx={{ display: 'flex', justifyContent: 'left', gap: 1 }}>
+                          <Tooltip title="Edit" arrow>
+                            <span>
+                              <ActionButton
+                                onClick={() => handleEdit(request)}
+                                disabled={user.role !== "admin" && request.status !== "requested"}
+                                sx={{ 
+                                  color: '#faa000',
+                                  backgroundColor: alpha(
+                                    user.role !== "admin" && request.status !== "requested" 
+                                      ? '#8b8b8b' 
+                                      : '#faa000',
+                                    0.1
+                                  )
+                                }}
+                              >
+                                <EditIcon fontSize="small" />
+                              </ActionButton>
+                            </span>
+                          </Tooltip>
+                          <Tooltip title="Delete" arrow>
+                            <span>
+                              <ActionButton
+                                onClick={() => handleDelete(request.id)}
+                                disabled={user.role !== "admin"}
+                                sx={{ 
+                                  color: '#f44336',
+                                  backgroundColor: alpha(
+                                    user.role === "admin" ? '#f44336' : '#8b8b8b',
+                                    0.1
+                                  )
+                                }}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </ActionButton>
+                            </span>
+                          </Tooltip>
+                        </Box>
+                      )}
+                    </StyledTableCell>
+                  </StyledTableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
-      </div>
-    </div>
+
+        <Snackbar
+          open={notification.open}
+          autoHideDuration={3000}
+          onClose={handleCloseNotification}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          TransitionComponent={Fade}
+        >
+          <Alert
+            onClose={handleCloseNotification}
+            severity={notification.severity}
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            {notification.message}
+          </Alert>
+        </Snackbar>
+      </Container>
+    </Box>
   );
 };
 
