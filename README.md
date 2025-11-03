@@ -1,6 +1,6 @@
 # School Equipment Lending Portal
 
-A full-stack web application for managing school equipment lending, built with React, Node.js, and MongoDB.
+A full-stack web application for managing school equipment lending, built with React, Node.js, and MySQL DB.
 
 ## Project Overview
 
